@@ -34,6 +34,11 @@ namespace RetroCraft
         public bool EncryptionEnabled { get; protected internal set; }
         public bool ClassicLoggedIn { get; protected internal set; }
 
+        public sbyte PlayerId { get; set; }
+        public Vector3 Position { get; set; }
+        public byte Yaw { get; set; }
+        public byte Pitch { get; set; }
+
         protected internal byte[] VerificationToken { get; set; }
         protected internal byte[] SharedKey { get; set; }
 

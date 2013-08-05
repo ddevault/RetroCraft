@@ -31,6 +31,8 @@ namespace RetroCraft
         protected PacketHandler[] PacketHandlers { get; set; }
         protected ClassicHandler[] ClassicPacketHandlers { get; set; }
 
+        private DateTime LastPing { get; set; }
+
         public Proxy(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
         {
             LocalEndpoint = localEndpoint;
@@ -41,6 +43,7 @@ namespace RetroCraft
             ClassicPacketHandlers = new ClassicHandler[256];
             ModernHandlers.PacketHandlers.Register(this);
             ClassicHandlers.PacketHandlers.Register(this);
+            LastPing = DateTime.MinValue;
         }
 
         public void Start()
@@ -117,15 +120,34 @@ namespace RetroCraft
             }
         }
 
-        private bool ModernWorker(ref int i, RemoteClient client)
+        internal void FlushClient(RemoteClient client)
         {
-            bool disconnect = false;
             while (client.PacketQueue.Count != 0)
             {
                 IPacket nextPacket;
                 if (client.PacketQueue.TryDequeue(out nextPacket))
                 {
                     nextPacket.WritePacket(client.NetworkStream);
+                    client.NetworkStream.Flush();
+                }
+            }
+        }
+
+        internal bool ModernWorker(ref int i, RemoteClient client)
+        {
+            bool disconnect = false;
+            if (LastPing.AddSeconds(30) < DateTime.Now && client.ClassicLoggedIn)
+            {
+                client.SendPacket(new KeepAlivePacket(0));
+                LastPing = DateTime.Now;
+            }
+            while (client.PacketQueue.Count != 0)
+            {
+                IPacket nextPacket;
+                if (client.PacketQueue.TryDequeue(out nextPacket))
+                {
+                    nextPacket.WritePacket(client.NetworkStream);
+                    Console.WriteLine("> {0}", nextPacket.GetType().Name);
                     client.NetworkStream.Flush();
                     if (nextPacket is DisconnectPacket)
                         disconnect = true;
@@ -208,6 +230,7 @@ namespace RetroCraft
                 try
                 {
                     var packet = ClassicReader.ReadPacket(client.ClassicStream);
+                    Console.WriteLine("< {0}", packet.GetType().Name);
                     if (packet is Craft.Net.Classic.Networking.DisconnectPlayerPacket)
                     {
                         new DisconnectPacket(((Craft.Net.Classic.Networking.DisconnectPlayerPacket)packet).Reason)

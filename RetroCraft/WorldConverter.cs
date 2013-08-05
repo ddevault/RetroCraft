@@ -35,7 +35,6 @@ namespace RetroCraft
                         section.SkyLight.Data = data[3];
                         section.ProcessSection();
                         chunk.Sections[y] = section;
-                        Console.WriteLine("Converted <{0}, {1}, {2}>", x / 16, y, z / 16);
                     }
                     anvil.SetChunk(new Coordinates2D(x / 16, z /16), chunk);
                 }

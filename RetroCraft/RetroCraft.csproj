@@ -50,6 +50,7 @@
     <Compile Include="ClassicHandlers\LevelHandlers.cs" />
     <Compile Include="ClassicLevel.cs" />
     <Compile Include="ChunkHelper.cs" />
+    <Compile Include="ClassicHandlers\PlayerHandlers.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

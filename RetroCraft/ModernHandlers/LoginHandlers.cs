@@ -49,7 +49,7 @@ namespace RetroCraft.ModernHandlers
             if (packet.Status == ClientStatusPacket.ClientStatus.InitialSpawn)
             {
                 // Throw them into an empty world and inform them that we'll be connecting them shortly.
-                client.SendPacket(new LoginRequestPacket(1, "FLAT", GameMode.Creative, Dimension.Overworld, Difficulty.Normal, 1));
+                client.SendPacket(new LoginRequestPacket(1, "FLAT", GameMode.Creative, Dimension.Overworld, Difficulty.Normal, 100));
                 client.SendPacket(new PlayerAbilitiesPacket(0, 0.05f, 0.1f));
                 client.SendPacket(new EntityPropertiesPacket(1, new[] { new EntityProperty("generic.movementSpeed", 0.05f) }));
                 client.SendPacket(new PlayerPositionAndLookPacket(0, 1.72, 0, 0.1, 0, 0, false));

@@ -20,7 +20,10 @@ namespace RetroCraft
         {
             var packet = (LevelDataPacket)_packet;
             if ((int)packet.Complete % 10 > (int)client.LevelDownloaded % 10)
+            {
                 client.SendChat(string.Format(ChatColors.Yellow + "Downloading level: {0}% complete", (int)(packet.Complete * 100)));
+                proxy.FlushClient(client);
+            }
             client.LevelDownloaded = packet.Complete;
             int before = client.ClassicLevelData.Length;
             Array.Resize(ref client.ClassicLevelData, client.ClassicLevelData.Length + packet.Data.Length);
@@ -36,6 +39,7 @@ namespace RetroCraft
                 client.SendChat(ChatColors.Red + "Warning! Level is taller than maximum 1.6.2 world height.");
                 client.SendChat(ChatColors.Red + "The top of the world will be cut off.");
             }
+            proxy.FlushClient(client);
             WorldConverter.PopulateWorld(client.Level.DefaultWorld, client.ClassicLevelData, packet.XSize, packet.YSize, packet.ZSize);
             client.SendPacket(new Modern.RespawnPacket(Dimension.Overworld, Difficulty.Normal, GameMode.Creative, 256, "FLAT"));
             for (int x = 0; x < packet.XSize / 16; x++)
@@ -46,7 +50,8 @@ namespace RetroCraft
                         new Coordinates2D(x, z))));
                 }
             }
-            client.SendPacket(new Modern.PlayerPositionAndLookPacket(0, 1.72, 0, 0.1, 0, 0, false));
+            client.SendPacket(new Modern.PlayerPositionAndLookPacket(
+                client.Position.X, client.Position.Y + 1.72, client.Position.Z, client.Position.Y + 0.1, 0, 0, false));
             client.SendChat(ChatColors.Yellow + "Conversion complete. Welcome to RetroCraft.");
         }
     }
