@@ -34,6 +34,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="Ionic.Zip.Reduced">
+      <HintPath>..\externals\Craft.Net\lib\Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -44,6 +47,9 @@
     <Compile Include="ModernHandlers\LoginHandlers.cs" />
     <Compile Include="WorldConverter.cs" />
     <Compile Include="ClassicHandlers\PacketHandlers.cs" />
+    <Compile Include="ClassicHandlers\LevelHandlers.cs" />
+    <Compile Include="ClassicLevel.cs" />
+    <Compile Include="ChunkHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

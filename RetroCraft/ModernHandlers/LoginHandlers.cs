@@ -53,7 +53,7 @@ namespace RetroCraft.ModernHandlers
                 client.SendPacket(new PlayerAbilitiesPacket(0, 0.05f, 0.1f));
                 client.SendPacket(new EntityPropertiesPacket(1, new[] { new EntityProperty("generic.movementSpeed", 0.05f) }));
                 client.SendPacket(new PlayerPositionAndLookPacket(0, 1.72, 0, 0.1, 0, 0, false));
-                client.SendChat("Welcome to RetroCraft! You'll be connected momentarily.");
+                client.SendChat(ChatColors.Yellow + "Connecting to the classic server, please wait.");
                 proxy.Connect(client);
             }
             else if (packet.Status == ClientStatusPacket.ClientStatus.Respawn)

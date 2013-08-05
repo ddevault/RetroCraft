@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using Craft.Net.Networking;
 using ClassicStream = Craft.Net.Classic.Common.MinecraftStream;
 using ClassicPacket = Craft.Net.Classic.Networking.IPacket;
+using Craft.Net.Anvil;
 
 namespace RetroCraft
 {
@@ -27,6 +28,9 @@ namespace RetroCraft
         public ConcurrentQueue<ClassicPacket> ClassicQueue { get; set; }
 
         public string Username { get; set; }
+        public Level Level { get; set; }
+        public byte[] ClassicLevelData;
+        public double LevelDownloaded { get; set; }
         public bool EncryptionEnabled { get; protected internal set; }
         public bool ClassicLoggedIn { get; protected internal set; }
 

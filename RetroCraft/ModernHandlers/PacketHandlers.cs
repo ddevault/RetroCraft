@@ -1,5 +1,6 @@
 using System;
 using Craft.Net.Networking;
+using Classic = Craft.Net.Classic.Networking;
 
 namespace RetroCraft.ModernHandlers
 {
@@ -11,7 +12,17 @@ namespace RetroCraft.ModernHandlers
             proxy.RegisterPacketHandler(EncryptionKeyResponsePacket.PacketId, LoginHandlers.EncryptionKeyResponse);
             proxy.RegisterPacketHandler(ClientStatusPacket.PacketId, LoginHandlers.ClientStatus);
 
+            proxy.RegisterPacketHandler(ChatMessagePacket.PacketId, ChatMessage);
             proxy.RegisterPacketHandler(ServerListPingPacket.PacketId, ServerListPing);
+        }
+
+        public static void ChatMessage(RemoteClient client, Proxy proxy, IPacket _packet)
+        {
+            var packet = (ChatMessagePacket)_packet;
+            if (packet.Message.StartsWith("//"))
+                proxy.HandleCommand(packet.Message, client);
+            else
+                client.SendClassicPacket(new Classic.ChatMessagePacket(packet.Message, -1));
         }
 
         public static void ServerListPing(RemoteClient client, Proxy proxy, IPacket _packet)

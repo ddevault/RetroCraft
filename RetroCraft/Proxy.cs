@@ -21,7 +21,6 @@ namespace RetroCraft
         public IPEndPoint LocalEndpoint { get; set; }
         public IPEndPoint RemoteEndpoint { get; set; }
         public List<RemoteClient> Clients { get; set; }
-        public Level Level { get; set; }
         public TcpListener Listener { get; set; }
 
         protected internal RSACryptoServiceProvider CryptoServiceProvider { get; set; }
@@ -36,8 +35,6 @@ namespace RetroCraft
         {
             LocalEndpoint = localEndpoint;
             RemoteEndpoint = remoteEndpoint;
-            Level = new Level();
-            Level.AddWorld(new World("world"));
             NetworkLock = new object();
             Clients = new List<RemoteClient>();
             PacketHandlers = new PacketHandler[256];
@@ -77,6 +74,15 @@ namespace RetroCraft
         public void RegisterClassicPacketHandler(byte packetId, ClassicHandler handler)
         {
             ClassicPacketHandlers[packetId] = handler;
+        }
+
+        public void HandleCommand(string command, RemoteClient client)
+        {
+            if (command.StartsWith("//save "))
+            {
+                client.Level.SaveTo(command.Substring(7));
+                client.SendChat(ChatColors.Blue + "[RetroCraft] Level saved.");
+            }
         }
 
         protected void AcceptClientAsync(IAsyncResult result)
@@ -144,6 +150,7 @@ namespace RetroCraft
                     var packet = PacketReader.ReadPacket(client.NetworkStream);
                     if (packet is DisconnectPacket)
                     {
+                        Disconnect(client);
                         Clients.RemoveAt(i--);
                         return false;
                     }
@@ -151,6 +158,7 @@ namespace RetroCraft
                 }
                 catch (SocketException)
                 {
+                    Disconnect(client);
                     Clients.RemoveAt(i--);
                     return false;
                 }
@@ -158,6 +166,7 @@ namespace RetroCraft
                 {
                     new DisconnectPacket(e.Message).WritePacket(client.NetworkStream);
                     client.NetworkStream.Flush();
+                    Disconnect(client);
                     Clients.RemoveAt(i--);
                     return false;
                 }
@@ -165,6 +174,7 @@ namespace RetroCraft
                 {
                     new DisconnectPacket(e.Message).WritePacket(client.NetworkStream);
                     client.NetworkStream.Flush();
+                    Disconnect(client);
                     Clients.RemoveAt(i--);
                     return false;
                 }
@@ -203,6 +213,7 @@ namespace RetroCraft
                         new DisconnectPacket(((Craft.Net.Classic.Networking.DisconnectPlayerPacket)packet).Reason)
                             .WritePacket(client.NetworkStream);
                         client.NetworkStream.Flush();
+                        Disconnect(client);
                         Clients.RemoveAt(i--);
                         return;
                     }
@@ -210,6 +221,7 @@ namespace RetroCraft
                 }
                 catch (SocketException)
                 {
+                    Disconnect(client);
                     Clients.RemoveAt(i--);
                     return;
                 }
@@ -224,6 +236,7 @@ namespace RetroCraft
                 {
                     new DisconnectPacket(e.Message).WritePacket(client.NetworkStream);
                     client.NetworkStream.Flush();
+                    Disconnect(client);
                     Clients.RemoveAt(i--);
                     return;
                 }
@@ -244,6 +257,17 @@ namespace RetroCraft
                 return;
             //throw new InvalidOperationException("No packet handler registered for 0x" + packet.Id.ToString("X2"));
             ClassicPacketHandlers[packet.Id](client, this, packet);
+        }
+
+        private void Disconnect(RemoteClient client)
+        {
+            try
+            {
+                if (client.ClassicClient.Connected)
+                    client.ClassicClient.Close();
+                if (client.NetworkClient.Connected)
+                    client.NetworkClient.Close();
+            } catch { }
         }
     }
 }
