@@ -74,7 +74,7 @@ namespace RetroCraft
             for (int i = 0; i < 2048; i++) // Fake lighting
             {
                 cData[2][i] = (byte)0xFF;
-                cData[2][i] = (byte)0xFF;
+                cData[3][i] = (byte)0xFF;
             }
 
             return cData;
